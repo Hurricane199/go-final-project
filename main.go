@@ -3,14 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+
+	"github.com/Hurricane199/go-final-project/pkg/db"
+	"github.com/Hurricane199/go-final-project/pkg/server"
 )
 
 const defaultPort = "7540"
+
 const webDir = "web"
 
 func main() {
+	dbFile := os.Getenv("TODO_DBFILE")
+
+	if dbFile == "" {
+		dbFile = "scheduler.db"
+	}
+
+	if err := db.Init(dbFile); err != nil {
+		log.Fatalf("Ошибка инициализации базы данных: %v", err)
+	}
+
 	fmt.Println("Сервер запускается ...")
 
 	// Получаем порт из переменной окружения TODO_PORT
@@ -21,19 +34,7 @@ func main() {
 		port = defaultPort
 	}
 
-	fmt.Println("Сервер запускается на порту:", port)
-
-	// Инициализируем HTTP-роутер
-	mux := http.NewServeMux()
-
-	fileServer := http.FileServer(http.Dir(webDir))
-	mux.Handle("/", fileServer)
-
-	// Запускаем HTTP-сервер
-	fmt.Println("Сервер запущен на порту:", port)
-	err := http.ListenAndServe(":"+port, mux)
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Printf("Сервер запустился на порту: %s\n", port)
+	log.Fatal(server.Run(port, webDir))
 
 }
