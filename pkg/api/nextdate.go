@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -16,55 +15,75 @@ func afterNow(date, now time.Time) bool {
 }
 
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
-
 	if repeat == "" {
-		return "", errors.New("Повторение не задано")
+		return "", nil
 	}
 
-	date, err := time.Parse(dateFormat, dstart)
+	start, err := time.Parse(dateFormat, dstart)
 	if err != nil {
-		return "", err
+		return "", nil
 	}
 
-	parts := strings.Split(repeat, " ")
+	parts := strings.Fields(repeat)
+	if len(parts) == 0 {
+		return "", nil
+	}
+
+	date := start
 
 	switch parts[0] {
+
 	case "d":
-
 		if len(parts) != 2 {
-			return "", errors.New("Неверный формат повторения каждый день (d)")
+			return "", nil
 		}
 
-		interval, err := strconv.Atoi(parts[1])
-		if err != nil || interval < 1 || interval > 400 {
-			return "", errors.New("Неверный интервал для повторения каждый день (число после d)")
+		n, err := strconv.Atoi(parts[1])
+		if err != nil || n < 1 || n > 400 {
+			return "", nil
 		}
 
-		for {
-			date = date.AddDate(0, 0, interval)
-			if afterNow(date, now) {
-				break
-			}
+		date = date.AddDate(0, 0, n)
+
+		for !date.After(now) {
+			date = date.AddDate(0, 0, n)
 		}
 
 	case "y":
-
 		if len(parts) != 1 {
-			return "", errors.New("Неверный формат повторения каждый год (y)")
+			return "", nil
 		}
 
-		for {
-			date = date.AddDate(1, 0, 0)
-			if afterNow(date, now) {
-				break
+		y, m, d := date.Date()
+		date = time.Date(y+1, m, d, 0, 0, 0, 0, date.Location())
+
+		// 29 февраля
+		if m == time.February && d == 29 && date.Month() != time.February {
+			date = time.Date(y+1, time.March, 1, 0, 0, 0, 0, date.Location())
+		}
+
+		for !date.After(now) {
+			y, m, d := date.Date()
+			next := time.Date(
+				y+1, m, d,
+				0, 0, 0, 0,
+				date.Location(),
+			)
+
+			// 29 февраля
+			if m == time.February && d == 29 && next.Month() != time.February {
+				next = time.Date(
+					y+1, time.March, 1,
+					0, 0, 0, 0,
+					date.Location(),
+				)
 			}
-		}
-	//case "w":
 
-	//case "m":
+			date = next
+		}
 
 	default:
-		return "", errors.New("Неизвестный формат повторения")
+		return "", nil
 	}
 
 	return date.Format(dateFormat), nil
