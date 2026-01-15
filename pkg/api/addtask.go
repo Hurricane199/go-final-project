@@ -12,6 +12,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task db.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		writeJSON(w, map[string]string{"error": err.Error()})
 		return
 	}

@@ -19,14 +19,14 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	if task.ID == "" {
 		writeJSON(w, map[string]string{
-			"error": "Не указан идентификатор",
+			"error": "не указан идентификатор",
 		})
 		return
 	}
 
 	if task.Title == "" {
 		writeJSON(w, map[string]string{
-			"error": "Не указан заголовок задачи",
+			"error": "не указан заголовок задачи",
 		})
 		return
 	}
@@ -40,7 +40,7 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !isRepeatValid(task.Repeat) {
 		writeJSON(w, map[string]string{
-			"error": "invalid repeat format",
+			"error": "недопустимый формат повторения",
 		})
 		return
 	}

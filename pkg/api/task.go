@@ -22,7 +22,7 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Query().Get("id")
 		if id == "" {
 			writeJSON(w, map[string]string{
-				"error": "Не указан идентификатор",
+				"error": "не указан идентификатор",
 			})
 			return
 		}
@@ -37,8 +37,9 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, struct{}{})
 
 	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		writeJSON(w, map[string]string{
-			"error": "Метод недоступен",
+			"error": "метод недоступен",
 		})
 	}
 }

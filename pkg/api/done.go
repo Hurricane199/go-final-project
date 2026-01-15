@@ -8,10 +8,15 @@ import (
 )
 
 func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		writeJSON(w, map[string]string{
-			"error": "Не указан идентификатор",
+			"error": "не указан идентификатор",
 		})
 		return
 	}

@@ -18,7 +18,7 @@ func checkDate(task *db.Task) error {
 
 	t, err := time.Parse(dateFormat, task.Date)
 	if err != nil {
-		return errors.New("Неправильный формат даты, должен быть ГГГГММДД")
+		return errors.New("неправильный формат даты, должен быть ГГГГММДД")
 	}
 
 	if task.Repeat != "" {

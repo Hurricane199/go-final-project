@@ -10,9 +10,9 @@ import (
 
 const dateFormat = "20060102"
 
-func afterNow(date, now time.Time) bool {
+/*func afterNow(date, now time.Time) bool {
 	return date.After(now)
-}
+}*/
 
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	if repeat == "" {
@@ -90,6 +90,11 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 }
 
 func nextDateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	nowStr := r.FormValue("now")
 
 	var now time.Time
@@ -114,5 +119,8 @@ func nextDateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, next)
+	if _, err := fmt.Fprint(w, next); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
