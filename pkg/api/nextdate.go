@@ -10,10 +10,6 @@ import (
 
 const dateFormat = "20060102"
 
-/*func afterNow(date, now time.Time) bool {
-	return date.After(now)
-}*/
-
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	if repeat == "" {
 		return "", nil
